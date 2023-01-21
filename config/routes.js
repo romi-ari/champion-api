@@ -3,6 +3,9 @@ const controllers = require("../app/controllers");
 
 const appRouter = express.Router();
 const apiRouter = express.Router();
+const cors = require("cors");
+apiRouter.use(cors());
+appRouter.use(cors());
 
 /* Mount GET / handler */
 appRouter.get("/", controllers.main.index);
