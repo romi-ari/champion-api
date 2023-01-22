@@ -10,20 +10,24 @@ appRouter.use(cors());
 /* Mount GET / handler */
 appRouter.get("/", controllers.main.index);
 
-//================== Admin Endpoint ==================//
+//================== Other Endpoint ==================//
+
 apiRouter.post("/api/v1/login", controllers.api.v1.admin.login);
+
+//================== Admin Endpoint ==================//
+
 apiRouter.get("/api/v1/admin", controllers.api.v1.admin.list);
 apiRouter.post("/api/v1/register-admin", controllers.api.v1.admin.register);
 apiRouter.put("/api/v1/admin/:id",
-  controllers.api.v1.admin.setadmin,
+  // controllers.api.v1.admin.setAdmin,
   controllers.api.v1.admin.update
 );
 apiRouter.get("/api/v1/admin/:id",
-  controllers.api.v1.admin.setadmin,
-  controllers.api.v1.admin.show
+  // controllers.api.v1.admin.setAdmin,
+  controllers.api.v1.admin.showById
 );
 apiRouter.delete("/api/v1/admin/:id",
-  controllers.api.v1.admin.setadmin,
+  // controllers.api.v1.admin.setAdmin,
   controllers.api.v1.admin.destroy
 );
 
