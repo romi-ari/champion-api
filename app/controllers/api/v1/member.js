@@ -2,111 +2,170 @@
  * @file contains request handler of post resource
  */
 const { member } = require("../../../models");
+const {createToken, encryptPassword, checkPassword} = require("./someFunction")
+const { v4: uuidv4 } = require('uuid');
+const dotenv = require('dotenv')
+dotenv.config();
 
 module.exports = {
-  list(req, res) {
-    member.findAll()
-      .then((members) => {
-        res.status(200).json({
-          status: "OK",
-          data: {
-            members,
-          },
-        });
-      })
-      .catch((err) => {
-        res.status(400).json({
-          status: "FAIL",
-          message: err.message,
-        });
+
+  async list(req, res) {
+    try {
+      const memberList = await member.findAll();
+      
+      res.status(200).json({
+        status: "OK",
+        message: "List member data success",
+        data: {
+          memberList,
+        },
       });
+    }
+    catch (err) {
+      res.status(400).json({
+        status: "FAIL",
+        message: `List member failed, ${err.message}`,
+      });
+    };
   },
 
-  create(req, res) {
-    member.create({
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-        username: req.body.username,
-        user_id: req.body.user_id,
-        address: req.body.address,
-        phone: req.body.phone,
-        email: req.body.email,
-        password: req.body.password,
-    })
-      .then((member) => {
-        res.status(201).json({
-          status: "Created",
-          data: member,
-        });
+  async register(req, res) {
+    try{
+      const first_name = req.body.first_name;
+      const last_name = req.body.last_name;
+      const username = req.body.username;
+      const member_id = uuidv4();
+      const role_user = "member";
+      const email = req.body.email;
+      const address = req.body.address;
+      const password = await encryptPassword(req.body.password);
+      
+      const register = await member.create({
+        first_name,
+        last_name,
+        username,
+        member_id,
+        role_user,
+        email,
+        address,
+        password,
       })
-      .catch((err) => {
-        res.status(422).json({
-          status: "FAIL",
-          message: err.message,
-        });
+      res.status(201).json({
+        status: "OK",
+        message: "Register member success",
+        data: register,
       });
+    }
+    catch (err) {
+      res.status(422).json({
+        status: "FAIL",
+        message: `Register member failed, ${err.message}`,
+      });
+    };
   },
 
-  update(req, res) {
-    const member = req.member;
-
-    member.update(req.body)
-      .then(() => {
-        res.status(200).json({
-          status: "Updated",
-          data: member,
-        });
+  async update(req, res) {
+    try {
+      const first_name = req.body.first_name
+      const last_name = req.body.last_name
+      const username = req.body.username
+      const address = req.body.address
+      const phone = req.body.phone
+      const email = req.body.email
+      
+      req.member = await member.findByPk(req.params.id)
+      const user = await req.member.update( 
+      {
+        first_name,
+        last_name,
+        username,
+        address,
+        phone,
+        email,
       })
-      .catch((err) => {
-        res.status(422).json({
-          status: "FAIL",
-          message: err.message,
-        });
+      res.status(200).json({
+        status: "OK",
+        message: "Update member data success",
+        data: user,
       });
+    }
+    catch (err) {
+      res.status(422).json({
+        status: "FAIL",
+        message: `Data failed to update, ${err.message}`,
+      });
+    };
   },
 
-  show(req, res) {
-    const member = req.member;
-
-    res.status(200).json({
-      status: "OK",
-      data: member,
-    });
+  async showById(req, res) {
+    try{
+      const showMemberById = await member.findByPk(req.params.id);
+  
+      res.status(200).json({
+        status: "OK",
+        message: "Show data by id success",
+        data: showMemberById,
+      });
+    }
+    catch (err) {
+      res.status(404).json({
+        status: "FAIL",
+        message: `Data not found, ${err.message}`,
+      });
+    };
   },
 
-  destroy(req, res) {
-    req.member.destroy()
-      .then(() => {
-        res.status(204).end();
-      })
-      .catch((err) => {
-        res.status(422).json({
-          status: "FAIL",
-          message: err.message,
-        });
+  async destroy(req, res) {
+    try{
+      req.member = await member.findByPk(req.params.id)
+      const remove = await req.member.destroy()
+
+      res.status(200).json({
+        status: "OK",
+        message: "Data deleted success",
       });
+    }
+    catch (err) {
+      res.status(422).json({
+        status: "FAIL",
+        message: `Delete Failed, (${err.message})`,
+      });
+    }
   },
 
-  setmember(req, res, next) {
-    member.findByPk(req.params.id)
-      .then((member) => {
-        if (!member) {
-          res.status(404).json({
-            status: "FAIL",
-            message: "Data not found!",
-          });
-
-          return;
-        }
-
-        req.member = member;
-        next()
+  async login (req, res) {
+    try{
+      const username = req.body.username;
+      const password = req.body.password;
+      const user = await member.findOne({
+        where: {username},
       })
-      .catch((err) => {
-        res.status(404).json({
-          status: "FAIL",
-          message: "Post not found!",
-        });
+      if (!user) {
+        res.status(404).json({ message: "Username not found"})
+        return
+      }
+      const isPasswordCorrect = await checkPassword(user.password, password);
+      if (!isPasswordCorrect) {
+        res.status(409).json({ message: "The password that you've entered is incorrect" });
+        return;
+      }
+      const token = createToken({
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        username: user.username,
+        email: user.email,
+      })
+      res.status(201).json({
+        status: "OK",
+        message: "Login Success",
+        token,
       });
+    } catch (err) {
+        res.status(401).json({
+          status: "FAILED",
+          message: `Login Failed, ${err.message}`,
+        });
+    }
   },
 };

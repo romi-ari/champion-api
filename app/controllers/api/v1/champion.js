@@ -2,110 +2,123 @@
  * @file contains request handler of post resource
  */
 const { champion } = require("../../../models");
+const dotenv = require('dotenv')
+dotenv.config();
 
 module.exports = {
-  list(req, res) {
-    champion.findAll()
-      .then((champions) => {
-        res.status(200).json({
-          status: "OK",
-          data: {
-            champions,
-          },
-        });
-      })
-      .catch((err) => {
-        res.status(400).json({
-          status: "FAIL",
-          message: err.message,
-        });
+
+  async list(req, res) {
+    try {
+      const championList = await champion.findAll();
+      
+      res.status(200).json({
+        status: "OK",
+        message: "List champion data success",
+        data: {
+          championList,
+        },
       });
+    }
+    catch (err) {
+      res.status(400).json({
+        status: "FAIL",
+        message: `List champion failed, ${err.message}`,
+      });
+    };
   },
 
-  create(req, res) {
-    champion.create({
-      name: req.body.name,
-      title: req.body.title,
-      description: req.body.description,
-      role: req.body.role,
-      difficulty: req.body.difficulty,
-    })
-      .then((champion) => {
-        res.status(201).json({
-          status: "Champion Created",
-          data: champion,
-        });
+  async create(req, res) {
+    try{
+      const name = req.body.name;
+      const title = req.body.title;
+      const description = req.body.description;
+      const role = req.body.role;
+      const difficulty = req.body.difficulty;
+      
+      const create = await champion.create({
+        name,
+        title,
+        description,
+        role,
+        difficulty,
       })
-      .catch((err) => {
-        res.status(422).json({
-          status: "FAIL",
-          message: err.message,
-        });
+      res.status(201).json({
+        status: "OK",
+        message: "Register champion success",
+        data: create,
       });
+    }
+    catch (err) {
+      res.status(422).json({
+        status: "FAIL",
+        message: `Register champion failed, ${err.message}`,
+      });
+    };
   },
 
-  update(req, res) {
-    const champion = req.champion;
-
-    champion.update(req.body)
-      .then(() => {
-        res.status(200).json({
-          status: "Champion Updated",
-          data: champion,
-        });
+  async update(req, res) {
+    try {
+      const name = req.body.first_name
+      const title = req.body.last_name
+      const description = req.body.username
+      const role = req.body.address
+      const difficulty = req.body.phone
+      
+      req.champion = await champion.findByPk(req.params.id)
+      const champions = await req.champion.update({
+        name,
+        title,
+        description,
+        role,
+        difficulty,
       })
-      .catch((err) => {
-        res.status(422).json({
-          status: "FAIL",
-          message: err.message,
-        });
+      res.status(200).json({
+        status: "OK",
+        message: "Update champion data success",
+        data: champions,
       });
+    }
+    catch (err) {
+      res.status(422).json({
+        status: "FAIL",
+        message: `Data failed to update, ${err.message}`,
+      });
+    };
   },
 
-  show(req, res) {
-    const champion = req.champion;
-
-    res.status(200).json({
-      status: "OK",
-      data: champion,
-    });
+  async showById(req, res) {
+    try{
+      const showChampionById = await champion.findByPk(req.params.id);
+  
+      res.status(200).json({
+        status: "OK",
+        message: "Show data by id success",
+        data: showChampionById,
+      });
+    }
+    catch (err) {
+      res.status(404).json({
+        status: "FAIL",
+        message: `Data not found, ${err.message}`,
+      });
+    };
   },
 
-  destroy(req, res) {
-    req.champion.destroy()
-      .then(() => {
-        res.status(200).json({
-          status: "Champion Deleted",
-        });
-      })
-      .catch((err) => {
-        res.status(422).json({
-          status: "FAIL",
-          message: err.message,
-        });
+  async destroy(req, res) {
+    try{
+      req.champion = await champion.findByPk(req.params.id)
+      const destroy = await req.champion.destroy()
+
+      res.status(200).json({
+        status: "OK",
+        message: "Data deleted success",
       });
-  },
-
-  setChampion(req, res, next) {
-    champion.findByPk(req.params.id)
-      .then((champion) => {
-        if (!champion) {
-          res.status(404).json({
-            status: "FAIL",
-            message: "Data not found!",
-          });
-
-          return;
-        }
-
-        req.champion = champion;
-        next()
-      })
-      .catch((err) => {
-        res.status(404).json({
-          status: "FAIL",
-          message: "Post not found!",
-        });
+    }
+    catch (err) {
+      res.status(422).json({
+        status: "FAIL",
+        message: `Delete Failed, (${err.message})`,
       });
+    }
   },
 };

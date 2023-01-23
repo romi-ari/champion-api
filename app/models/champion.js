@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     title: DataTypes.STRING,
     description: DataTypes.STRING,
     role: DataTypes.STRING,
-    difficulty: DataTypes.INTEGER
+    difficulty: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'champion',

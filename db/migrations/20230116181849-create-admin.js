@@ -18,14 +18,17 @@ module.exports = {
       username: {
         type: Sequelize.STRING
       },
-      employee_id: {
-        type: Sequelize.INTEGER
+      admin_id: {
+        type: Sequelize.STRING
+      },
+      role_user: {
+        type: Sequelize.STRING
       },
       address: {
         type: Sequelize.STRING
       },
       phone: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       email: {
         type: Sequelize.STRING

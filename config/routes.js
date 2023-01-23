@@ -18,53 +18,27 @@ apiRouter.post("/api/v1/login", controllers.api.v1.admin.login);
 
 apiRouter.get("/api/v1/admin", controllers.api.v1.admin.list);
 apiRouter.post("/api/v1/register-admin", controllers.api.v1.admin.register);
-apiRouter.put("/api/v1/admin/:id",
-  // controllers.api.v1.admin.setAdmin,
-  controllers.api.v1.admin.update
-);
-apiRouter.get("/api/v1/admin/:id",
-  // controllers.api.v1.admin.setAdmin,
-  controllers.api.v1.admin.showById
-);
-apiRouter.delete("/api/v1/admin/:id",
-  // controllers.api.v1.admin.setAdmin,
-  controllers.api.v1.admin.destroy
-);
+apiRouter.get("/api/v1/admin/:id",controllers.api.v1.admin.showById);
+apiRouter.put("/api/v1/admin/:id",controllers.api.v1.admin.update);
+apiRouter.delete("/api/v1/admin/:id",controllers.api.v1.admin.destroy);
 
 //================== Member Endpoint ==================//
 
 apiRouter.get("/api/v1/member", controllers.api.v1.member.list);
-apiRouter.post("/api/v1/create-member", controllers.api.v1.member.create);
-apiRouter.put("/api/v1/member/:id",
-  controllers.api.v1.member.setmember,
-  controllers.api.v1.member.update
-);
-apiRouter.get("/api/v1/member/:id",
-  controllers.api.v1.member.setmember,
-  controllers.api.v1.member.show
-);
-apiRouter.delete("/api/v1/member/:id",
-  controllers.api.v1.member.setmember,
-  controllers.api.v1.member.destroy
-);
+apiRouter.post("/api/v1/register-member", controllers.api.v1.member.register);
+apiRouter.get("/api/v1/member/:id",controllers.api.v1.member.showById);
+apiRouter.put("/api/v1/member/:id",controllers.api.v1.member.update);
+apiRouter.delete("/api/v1/member/:id",controllers.api.v1.member.destroy);
 
 //================== Champion Endpoint ==================//
 
 apiRouter.get("/api/v1/champion", controllers.api.v1.champion.list);
 apiRouter.post("/api/v1/create-champion", controllers.api.v1.champion.create);
-apiRouter.put("/api/v1/champion/:id",
-  controllers.api.v1.champion.setChampion,
-  controllers.api.v1.champion.update
-);
-apiRouter.get("/api/v1/champion/:id",
-  controllers.api.v1.champion.setChampion,
-  controllers.api.v1.champion.show
-);
-apiRouter.delete("/api/v1/champion/:id",
-  controllers.api.v1.champion.setChampion,
-  controllers.api.v1.champion.destroy
-);
+apiRouter.get("/api/v1/champion/:id",controllers.api.v1.champion.showById);
+apiRouter.put("/api/v1/champion/:id",controllers.api.v1.champion.update);
+apiRouter.delete("/api/v1/champion/:id",controllers.api.v1.champion.destroy);
 
+//================== Other ==================//
 apiRouter.use(controllers.api.main.onLost);
 apiRouter.use(controllers.api.main.onError);
 

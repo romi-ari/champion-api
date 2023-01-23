@@ -10,7 +10,7 @@
     "db:drop": "sequelize db:drop",
     "db:migrate": "sequelize db:migrate",
     "db:rollback": "sequelize db:migrate:undo",
-    "db:setup": "sequelize db:drop && sequelize db:create && sequelize db:migrate",
+    "db:setup": "sequelize db:drop && sequelize db:create && sequelize db:migrate && sequelize db:seed:all",
     "db:seed": "sequelize db:seed:all"
   },
   "dependencies": {
@@ -23,7 +23,8 @@
     "morgan": "^1.10.0",
     "pg": "^8.7.3",
     "sequelize": "^6.18.0",
-    "sequelize-cli": "^6.4.1"
+    "sequelize-cli": "^6.4.1",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
