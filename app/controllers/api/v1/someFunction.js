@@ -8,6 +8,7 @@ const dotenv = require('dotenv')
 dotenv.config();
 
 module.exports = {
+  
     encryptPassword(password) {
         try {
           return new Promise((resolve, reject) => {

@@ -29,11 +29,11 @@ module.exports = {
 
   async create(req, res) {
     try{
-      const name = req.body.name;
-      const title = req.body.title;
-      const description = req.body.description;
-      const role = req.body.role;
-      const difficulty = req.body.difficulty;
+      const name = req.body.name
+      const title = req.body.title
+      const description = req.body.description
+      const role = req.body.role
+      const difficulty = req.body.difficulty
       
       const create = await champion.create({
         name,
@@ -107,7 +107,7 @@ module.exports = {
   async destroy(req, res) {
     try{
       req.champion = await champion.findByPk(req.params.id)
-      const destroy = await req.champion.destroy()
+      const remove = await req.champion.destroy()
 
       res.status(200).json({
         status: "OK",

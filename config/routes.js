@@ -12,15 +12,15 @@ appRouter.get("/", controllers.main.index);
 
 //================== Other Endpoint ==================//
 
-apiRouter.post("/api/v1/login", controllers.api.v1.admin.login);
+apiRouter.post("/api/v1/login", controllers.api.v1.auth.login);
 
 //================== Admin Endpoint ==================//
 
-apiRouter.get("/api/v1/admin", controllers.api.v1.admin.list);
-apiRouter.post("/api/v1/register-admin", controllers.api.v1.admin.register);
-apiRouter.get("/api/v1/admin/:id",controllers.api.v1.admin.showById);
-apiRouter.put("/api/v1/admin/:id",controllers.api.v1.admin.update);
-apiRouter.delete("/api/v1/admin/:id",controllers.api.v1.admin.destroy);
+apiRouter.get("/api/v1/admin", controllers.api.v1.auth.tokenLogin, controllers.api.v1.admin.list);
+apiRouter.post("/api/v1/register-admin", controllers.api.v1.auth.tokenLogin, controllers.api.v1.admin.register);
+apiRouter.get("/api/v1/admin/:id", controllers.api.v1.auth.tokenLogin, controllers.api.v1.admin.showById);
+apiRouter.put("/api/v1/admin/:id", controllers.api.v1.auth.tokenLogin, controllers.api.v1.admin.update);
+apiRouter.delete("/api/v1/admin/:id", controllers.api.v1.auth.tokenLogin, controllers.api.v1.admin.destroy);
 
 //================== Member Endpoint ==================//
 

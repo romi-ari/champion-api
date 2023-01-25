@@ -140,8 +140,8 @@ module.exports = {
 
   async login (req, res) {
     try{
-      const username = req.body.username;
-      const password = req.body.password;
+      const username = req.body.username
+      const password = req.body.password
       const user = await admin.findOne({
         where: {username},
       })
@@ -156,10 +156,10 @@ module.exports = {
       }
       const token = createToken({
         id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
         username: user.username,
+        role_user: user.role_user,
         email: user.email,
+        password: user.password,
       })
       res.status(201).json({
         status: "OK",
