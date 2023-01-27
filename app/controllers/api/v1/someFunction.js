@@ -1,7 +1,7 @@
 /**
  * @file contains function resource
 */
-
+const { admin, member } = require("../../../models");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv')
@@ -24,7 +24,8 @@ module.exports = {
         } catch (err) {
           res.status(400).json({
             status: "FAIL",
-            message: `Encrypt failed, ${err.message}`,
+            message: "Encrypt failed",
+            error: err.message,
           });
         }
     },
@@ -44,7 +45,8 @@ module.exports = {
       } catch (err) {
         res.status(400).json({
           status: "FAIL",
-          message: `Check password failed, ${err.message}`,
+          message: "Password doesn't match",
+          error: err.message,
         });
       }
     },
@@ -53,4 +55,39 @@ module.exports = {
       return jwt.sign(payload, process.env.JWT_SIGNATURE_KEY || "Rahasia");
     },
     
+    isAdminMember(isAdmins, isMembers) {
+      try{
+        if (!isAdmins) {
+          return admin.findByPk();
+        }
+        else if (!isMembers){
+          return member.findByPk();
+        }
+      }
+      catch (err) {
+        res.status(400).json({
+          status: "FAIL",
+          message: "Something failed",
+          error: err.message,
+        });
+      }
+    },
+
+    isLogin (isLoginAdmin, isLoginMember) {
+      try{
+        if (!isLoginAdmin) {
+          return admin.findOne();
+        }
+        else if (!isLoginMember){
+          return member.findOne();
+        }
+      }
+      catch (err) {
+        res.status(400).json({
+          status: "FAIL",
+          message: "Something failed",
+          error: err.message,
+        });
+      }
+    }
 }

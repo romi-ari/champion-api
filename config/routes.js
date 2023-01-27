@@ -24,11 +24,11 @@ apiRouter.delete("/api/v1/admin/:id", controllers.api.v1.auth.tokenLogin, contro
 
 //================== Member Endpoint ==================//
 
-apiRouter.get("/api/v1/member", controllers.api.v1.member.list);
-apiRouter.post("/api/v1/register-member", controllers.api.v1.member.register);
-apiRouter.get("/api/v1/member/:id",controllers.api.v1.member.showById);
-apiRouter.put("/api/v1/member/:id",controllers.api.v1.member.update);
-apiRouter.delete("/api/v1/member/:id",controllers.api.v1.member.destroy);
+apiRouter.get("/api/v1/member", controllers.api.v1.auth.tokenLogin, controllers.api.v1.member.list);
+apiRouter.post("/api/v1/register-member", controllers.api.v1.auth.tokenLogin, controllers.api.v1.member.register);
+apiRouter.get("/api/v1/member/:id", controllers.api.v1.auth.tokenLogin, controllers.api.v1.member.showById);
+apiRouter.put("/api/v1/member/:id", controllers.api.v1.auth.tokenLogin, controllers.api.v1.member.update);
+apiRouter.delete("/api/v1/member/:id", controllers.api.v1.auth.tokenLogin, controllers.api.v1.member.destroy);
 
 //================== Champion Endpoint ==================//
 

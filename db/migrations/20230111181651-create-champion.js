@@ -24,6 +24,9 @@ module.exports = {
       difficulty: {
         type: Sequelize.STRING
       },
+      profile_image: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

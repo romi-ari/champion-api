@@ -10,6 +10,7 @@ module.exports = {
   async list(req, res) {
     try {
       const championList = await champion.findAll();
+      const championTotal = championList.length
       
       res.status(200).json({
         status: "OK",
@@ -17,12 +18,16 @@ module.exports = {
         data: {
           championList,
         },
+        total: {
+          championTotal
+        }
       });
     }
     catch (err) {
       res.status(400).json({
         status: "FAIL",
-        message: `List champion failed, ${err.message}`,
+        message: "List champion failed",
+        error : err.message
       });
     };
   },
@@ -51,7 +56,8 @@ module.exports = {
     catch (err) {
       res.status(422).json({
         status: "FAIL",
-        message: `Register champion failed, ${err.message}`,
+        message: "Register champion failed",
+        error : err.message
       });
     };
   },
@@ -81,7 +87,8 @@ module.exports = {
     catch (err) {
       res.status(422).json({
         status: "FAIL",
-        message: `Data failed to update, ${err.message}`,
+        message: "Data failed to update",
+        error : err.message
       });
     };
   },
@@ -99,7 +106,8 @@ module.exports = {
     catch (err) {
       res.status(404).json({
         status: "FAIL",
-        message: `Data not found, ${err.message}`,
+        message: "Data not found",
+        error : err.message,
       });
     };
   },
@@ -117,7 +125,8 @@ module.exports = {
     catch (err) {
       res.status(422).json({
         status: "FAIL",
-        message: `Delete Failed, (${err.message})`,
+        message: "Delete Failed",
+        error : err.message
       });
     }
   },
