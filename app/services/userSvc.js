@@ -153,12 +153,21 @@ module.exports = {
   },
   async list() {
       try {
-          const users = await userRepo.findAll()
-          const userTotal = await userRepo.getTotalUser()
-          return {
-              data: users,
-              total: userTotal,
+        const users = await userRepo.findAll()
+        const userTotal = await userRepo.getTotalUser()
+        
+        if(!(users && userTotal)){
+          return{
+            response: 404,
+            status: "FAIL", 
+            message: `Data not found`,
           }
+        }
+
+        return {
+            data: users,
+            total: userTotal,
+        }
       }catch (err){
         return {
           response: 400,
@@ -169,8 +178,30 @@ module.exports = {
       }
   },
 
-  get(id){
-      return userRepo.find(id)
+  async listById(req){
+    try {
+      const id = req.params.id
+      const user = await userRepo.findByPk(id)
+      
+      if(!user){
+        return{
+          response: 404,
+          status: "FAIL", 
+          message: `Can't find user by id ${id}`,
+        }
+      }
+
+      return {
+          data: user,
+      }
+    }catch (err){
+      return {
+        response: 400,
+        status: "FAIL", 
+        message: "Find user by id failed",
+        error: err.message
+      }
+    }
   },
 
   async login (req){
@@ -183,8 +214,8 @@ module.exports = {
       })
       if (!user) {
         return {
-          response: 400, 
-          message: "Email address not registered"
+          response: 404, 
+          message: "Email address not found"
         }
       }
 
@@ -192,7 +223,7 @@ module.exports = {
       if(!isPasswordCorrect) {
         return {
           response: 400, 
-          message: "Password is not correct"
+          message: "Incorrect password"
         }
       }
 
@@ -207,8 +238,10 @@ module.exports = {
 
     }catch (err){
       return {
-        response: 400, 
-        message: err.message
+        response: 400,
+        status: "FAIL", 
+        message: "Login failed",
+        error: err.message
       }
     }
   },
