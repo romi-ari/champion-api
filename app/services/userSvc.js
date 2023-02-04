@@ -54,14 +54,77 @@ const createToken = (payload) => {
 }
 
 module.exports = {
-    
-  async register(req){
+  
+  async list() {
+    try {
+      const users = await userRepo.findAll()
+      const userTotal = await userRepo.getTotalUser()
+      
+      if(!(users && userTotal)){
+        return{
+          response: 404,
+          status: "FAIL", 
+          message: `Data not found`,
+        }
+      }
+
+      return {
+          users: users,
+          total: userTotal,
+      }
+    }catch (err){
+      return {
+        response: 400,
+        status: "FAIL", 
+        message: "List user failed",
+        error: err.message
+      }
+    }
+},
+
+  async registerAdmin(req){
     try{
       const first_name = req.body.first_name
       const last_name = req.body.last_name
       const username = req.body.username
       const user_id = req.body.user_id
-      const role_user = req.body.role_user
+      const role_user = "admin"
+      const address = req.body.address
+      const phone = req.body.phone
+      const profile_image = req.body.profile_image
+      const email = req.body.email
+      const password = await encryptPassword(req.body.password)
+      const user = await userRepo.create({
+        first_name,
+        last_name,
+        username,
+        user_id,
+        role_user,
+        address,
+        phone,
+        profile_image,
+        email,
+        password,
+      })
+      return {user}
+      
+    } catch (err){
+      return {
+        response: 400,
+        status: "FAIL",
+        message: "Register user failed",
+        error: err.message,
+      }
+    }                                      
+  },
+
+  async registerMember(req){
+    try{
+      const first_name = req.body.first_name
+      const last_name = req.body.last_name
+      const username = req.body.username
+      const user_id = req.body.user_id
+      const role_user = "member"
       const address = req.body.address
       const phone = req.body.phone
       const profile_image = req.body.profile_image
@@ -90,6 +153,32 @@ module.exports = {
     }                                      
   },
 
+  async listById(req){
+    try {
+      const id = req.params.id
+      const user = await userRepo.findByPk(id)
+      
+      if(!user){
+        return{
+          response: 404,
+          status: "FAIL", 
+          message: `Can't find user by id ${id}`,
+        }
+      }
+
+      return {
+          data: user,
+      }
+    }catch (err){
+      return {
+        response: 400,
+        status: "FAIL", 
+        message: "Find user by id failed",
+        error: err.message
+      }
+    }
+  },
+
   async update(req) {
     try{
       const first_name = req.body.first_name
@@ -100,21 +189,39 @@ module.exports = {
       const address = req.body.address
       const phone = req.body.phone
       const profile_image = req.body.profile_image
-      const email = req.body.email
-      const password = await encryptPassword(req.body.password)
-      const user = await userRepo.update(req.params.id, {
-        first_name,
-        last_name,
-        username,
-        user_id,
-        role_user,
-        address,
-        phone,
-        profile_image,
-        email,
-        password,
-      })
-      return {user}
+      const email = req.body.email      
+
+      if(!!req.body.password){
+        const password = await encryptPassword(req.body.password)
+
+        const user = await userRepo.update(req.user.id, {
+          first_name,
+          last_name,
+          username,
+          user_id,
+          role_user,
+          address,
+          phone,
+          profile_image,
+          email,
+          password,
+        })
+        return {user}
+
+      }else{
+        const user = await userRepo.update(req.user.id, {
+          first_name,
+          last_name,
+          username,
+          user_id,
+          role_user,
+          address,
+          phone,
+          profile_image,
+          email,
+        })
+        return {user}
+      }
 
     } catch (err){
       return {
@@ -125,6 +232,7 @@ module.exports = {
       }
     } 
   },
+
   async destroy(req) {
       try{
         const id = req.params.id
@@ -150,58 +258,6 @@ module.exports = {
           error: err.message
         }
       }
-  },
-  async list() {
-      try {
-        const users = await userRepo.findAll()
-        const userTotal = await userRepo.getTotalUser()
-        
-        if(!(users && userTotal)){
-          return{
-            response: 404,
-            status: "FAIL", 
-            message: `Data not found`,
-          }
-        }
-
-        return {
-            data: users,
-            total: userTotal,
-        }
-      }catch (err){
-        return {
-          response: 400,
-          status: "FAIL", 
-          message: "List user failed",
-          error: err.message
-        }
-      }
-  },
-
-  async listById(req){
-    try {
-      const id = req.params.id
-      const user = await userRepo.findByPk(id)
-      
-      if(!user){
-        return{
-          response: 404,
-          status: "FAIL", 
-          message: `Can't find user by id ${id}`,
-        }
-      }
-
-      return {
-          data: user,
-      }
-    }catch (err){
-      return {
-        response: 400,
-        status: "FAIL", 
-        message: "Find user by id failed",
-        error: err.message
-      }
-    }
   },
 
   async login (req){

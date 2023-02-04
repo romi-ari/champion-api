@@ -5,18 +5,33 @@
 const express = require("express")
 const apiRouter = express.Router()
 const controllers = require("../app/controllers")
+const { mid } = require("../app/services")
 
 //============ Other endpoint ============//
 
 apiRouter.post("/api/v1/login", controllers.api.v1.userCtrl.login)
 
-//============ User endpoint ============//
+//============ Admin endpoint ============//
 
-apiRouter.get("/api/v1/user", controllers.api.v1.userCtrl.list)
-apiRouter.post("/api/v1/register", controllers.api.v1.userCtrl.register)
-apiRouter.get("/api/v1/user/:id", controllers.api.v1.userCtrl.listById)
-apiRouter.put("/api/v1/user/update/:id", controllers.api.v1.userCtrl.update)
-apiRouter.delete("/api/v1/user/delete/:id", controllers.api.v1.userCtrl.destroy)
+apiRouter.get("/api/v1/admin",
+    mid.userToken.authorize,
+    mid.userToken.authorizeAdmin,
+    controllers.api.v1.userCtrl.list
+)
+apiRouter.post("/api/v1/register-admin", 
+    mid.userToken.authorize,
+    mid.userToken.authorizeAdmin, 
+    controllers.api.v1.userCtrl.registerAdmin
+)
+apiRouter.get("/api/v1/admin/:id", mid.userToken.authorize, controllers.api.v1.userCtrl.listById)
+apiRouter.put("/api/v1/update/", mid.userToken.authorize, controllers.api.v1.userCtrl.update)
+apiRouter.delete("/api/v1/delete/:id", mid.userToken.authorize, controllers.api.v1.userCtrl.destroy)
+
+//============ Member endpoint ============//
+
+apiRouter.post("/api/v1/register-member", controllers.api.v1.userCtrl.registerMember)
+apiRouter.put("/api/v1/member/update/", mid.userToken.authorize, controllers.api.v1.userCtrl.update)
+apiRouter.delete("/api/v1/delete/:id", mid.userToken.authorize, controllers.api.v1.userCtrl.destroy)
 
 //============ Middleware ============//
   
