@@ -10,19 +10,26 @@ async function authorize(req, res, next, authorizedRoles){
     const tokenPayload = jwt.verify(token, process.env.JWT_SIGNATURE_KEY || "Rahasia")
     
     const user = await userRepo.findByPk(tokenPayload.id);
-
-    //check apakah role terdapat di dalam roles
-    authorizedRoles.map (role => {
-      if(user.role_user !== role){
-        res.status(401).json({
-          status: "FAIL",
-          message: "Unauthorized access"
-        })
-        return
-      }
-    }) 
-    
     req.user = user;
+    console.log("ini mid:",req.user)
+    //check apakah role terdapat di dalam roles
+    // authorizedRoles.map (role => {
+    //   console.log("ini role:",role)
+    //   if(user.role_user !== role){
+    //     res.status(401).json({
+    //       status: "FAIL",
+    //       message: "Unauthorized access"
+    //     })
+        
+    //   }
+    // }) 
+    if(!authorizedRoles.includes(user.role_user)){
+      res.status(401).json({
+        status: "FAIL",
+        message: "Unauthorized access"
+      })
+      return
+    }
     next();
   } catch (err) {
     res.status(401).json({
@@ -32,11 +39,15 @@ async function authorize(req, res, next, authorizedRoles){
 };
 
 function authorizeUser(req, res, next) {
-  authorize(req, res, next, ["member", "admin",]);
+  authorize(req, res, next, ["member","admin","superadmin"]);
 };
 
 function authorizeAdmin(req, res, next) {
-  authorize(req, res, next, ["admin"]);
+  authorize(req, res, next, ["admin","superadmin"]);
 };
 
-module.exports = {authorize, authorizeUser, authorizeAdmin}
+function authorizeSuperAdmin(req, res, next) {
+  authorize(req, res, next, ["superadmin"]);
+};
+
+module.exports = {authorize, authorizeUser, authorizeAdmin, authorizeSuperAdmin}

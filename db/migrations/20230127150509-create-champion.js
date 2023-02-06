@@ -21,9 +21,6 @@ module.exports = {
       role: {
         type: Sequelize.STRING
       },
-      champion: {
-        type: Sequelize.STRING
-      },
       difficulty: {
         type: Sequelize.STRING
       },
