@@ -11,7 +11,6 @@ async function authorize(req, res, next, authorizedRoles){
     
     const user = await userRepo.findByPk(tokenPayload.id);
     req.user = user;
-    console.log("ini mid:",req.user)
     //check apakah role terdapat di dalam roles
     // authorizedRoles.map (role => {
     //   console.log("ini role:",role)
@@ -20,7 +19,6 @@ async function authorize(req, res, next, authorizedRoles){
     //       status: "FAIL",
     //       message: "Unauthorized access"
     //     })
-        
     //   }
     // }) 
     if(!authorizedRoles.includes(user.role_user)){
@@ -42,12 +40,16 @@ function authorizeUser(req, res, next) {
   authorize(req, res, next, ["member","admin","superadmin"]);
 };
 
-function authorizeAdmin(req, res, next) {
+function authorizeSuperAndAdmin(req, res, next) {
   authorize(req, res, next, ["admin","superadmin"]);
+};
+
+function authorizeAdmin(req, res, next) {
+  authorize(req, res, next, ["admin"]);
 };
 
 function authorizeSuperAdmin(req, res, next) {
   authorize(req, res, next, ["superadmin"]);
 };
 
-module.exports = {authorize, authorizeUser, authorizeAdmin, authorizeSuperAdmin}
+module.exports = {authorize, authorizeUser, authorizeSuperAndAdmin, authorizeAdmin, authorizeSuperAdmin}

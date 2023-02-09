@@ -30,7 +30,7 @@ module.exports = {
         error: err.message
       }
     }
-},
+  },
 
   async registerChampion(req){
     try{
@@ -40,6 +40,20 @@ module.exports = {
       const role = req.body.role
       const difficulty = req.body.difficulty
       const profile_image = "/image/default_user_icon.png"
+      const approved = "false"
+      const createdBy = req.user.username
+
+      const nameExist = await championRepo.findOne(
+        {where: {name}}
+      )
+      if(nameExist !== null){
+        return {
+          response: 403,
+          status: "FAIL",
+          message: "Name already registered",
+        }
+      } 
+
       const champion = await championRepo.create({
         name,
         title,
@@ -47,6 +61,8 @@ module.exports = {
         role,
         difficulty,
         profile_image,
+        approved,
+        createdBy,
       })
       return {champion}    
     } catch (err){
@@ -92,6 +108,18 @@ module.exports = {
       const role = req.body.role
       const difficulty = req.body.difficulty
       const profile_image = req.body.profile_image
+      
+      const nameExist = await championRepo.findOne(
+        {where: {name}}
+      )
+      if(nameExist !== null){
+        return {
+          response: 403,
+          status: "FAIL",
+          message: "Name already registered",
+        }
+      } 
+
       const champion = await championRepo.update(req.params.id, {
         name,
         title,
@@ -114,7 +142,6 @@ module.exports = {
   async destroy(req) {
       try{
         const id = req.params.id
-
         const champion = await championRepo.delete({
           where: {id},
         })
@@ -136,5 +163,38 @@ module.exports = {
         }
       }
   },
+
+  // async listApproved() {
+  //   try {
+  //     const approved = req.
+  //     const champions = await championRepo.findAll({
+  //       where: {approved},
+  //     })
+  //     const championTotal = await championRepo.getTotalchampion({
+  //       where: {approved},
+  //     })
+  //     console.log("ini data:", champions)
+  //     console.log("ini data:", championTotal)
+
+  //     if(!(champions && championTotal)){
+  //       return{
+  //         response: 404,
+  //         status: "FAIL", 
+  //         message: `No Data`,
+  //       }
+  //     }
+  //     return {
+  //         champions: champions,
+  //         total: championTotal,
+  //     }
+  //   }catch (err){
+  //     return {
+  //       response: 400,
+  //       status: "FAIL", 
+  //       message: "List champion failed",
+  //       error: err.message
+  //     }
+  //   }
+  // },
 
 }

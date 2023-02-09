@@ -12,7 +12,7 @@ const {mid}  = require("../app/services")
 apiRouter.use(cors());
 apiRouter.use(express.static(path.join(__dirname, '../bin/public')));
 
-//============ Member, Admin, Superadmin can access this endpoint ============//
+//============ Member, Admin, and Superadmin can access this endpoint ============//
 
 apiRouter.post("/api/v1/login", 
     controllers.api.v1.userCtrl.login
@@ -22,25 +22,38 @@ apiRouter.put("/api/v1/update",
     mid.userToken.authorizeUser,
     controllers.api.v1.userCtrl.update
 )
+apiRouter.post("/api/v1/champion",
+    mid.userToken.authorize,
+    mid.userToken.authorizeUser,
+    controllers.api.v1.championCtrl.registerChampion
+)
 
-//============ Admin endpoint ============//
+
+//============ Super Admin and Admin  endpoint ============//
 
 apiRouter.get("/api/v1/admin",
     mid.userToken.authorize,
-    mid.userToken.authorizeAdmin,
+    mid.userToken.authorizeSuperAndAdmin,
     controllers.api.v1.userCtrl.list
 )
 apiRouter.post("/api/v1/register-admin", 
     mid.userToken.authorize,
-    mid.userToken.authorizeAdmin, 
+    mid.userToken.authorizeSuperAdmin, 
     controllers.api.v1.userCtrl.registerAdmin
 )
+apiRouter.put("/api/v1/champion/approved/:id",
+    mid.userToken.authorize,
+    mid.userToken.authorizeSuperAndAdmin,
+    controllers.api.v1.userCtrl.approved
+)
 apiRouter.get("/api/v1/admin/:id", 
-    mid.userToken.authorize, 
+    mid.userToken.authorize,
+    mid.userToken.authorizeAdmin, 
     controllers.api.v1.userCtrl.listById
 )
 apiRouter.delete("/api/v1/delete/:id", 
-    mid.userToken.authorize, 
+    mid.userToken.authorize,
+    mid.userToken.authorizeSuperAdmin, 
     controllers.api.v1.userCtrl.destroy
 )
 
@@ -49,26 +62,30 @@ apiRouter.delete("/api/v1/delete/:id",
 apiRouter.post("/api/v1/register-member", 
     controllers.api.v1.userCtrl.registerMember
 )
-apiRouter.delete("/api/v1/delete/:id", 
-    mid.userToken.authorize, 
-    controllers.api.v1.userCtrl.destroy
-)
 
 //============ Champion endpoint ============//
 
-apiRouter.get("/api/v1/champion", 
+apiRouter.get("/api/v1/champion",
+    mid.userToken.authorize,
+    mid.userToken.authorizeUser,
     controllers.api.v1.championCtrl.list
 )
-apiRouter.post("/api/v1/champion",
-    controllers.api.v1.championCtrl.registerChampion
-)
-apiRouter.get("/api/v1/champion/:id", 
+// apiRouter.get("/api/v1/champion/approved",
+//     controllers.api.v1.championCtrl.listApproved
+// )
+apiRouter.get("/api/v1/champion/:id",
+    mid.userToken.authorize,
+    mid.userToken.authorizeUser, 
     controllers.api.v1.championCtrl.listById
 )
-apiRouter.put("/api/v1/champion/:id", 
+apiRouter.put("/api/v1/champion/:id",
+    mid.userToken.authorize,
+    mid.userToken.authorizeUser,
     controllers.api.v1.championCtrl.update
 )
-apiRouter.delete("/api/v1/champion/:id", 
+apiRouter.delete("/api/v1/champion/:id",
+    mid.userToken.authorize,
+    mid.userToken.authorizeUser, 
     controllers.api.v1.championCtrl.destroy
 )
 

@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userRepo = require("../repositories/userRepo")
+const championRepo = require("../repositories/championRepo")
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -88,19 +89,38 @@ module.exports = {
       const username = req.body.username
       const user_id = uuidv4()
       const role_user = "admin"
-      const address = req.body.address
-      const phone = req.body.phone
       const profile_image = "/image/default_user_icon.png"
       const email = req.body.email
       const password = await encryptPassword(req.body.password)
+      
+      const usernameExist = await userRepo.findOne(
+        {where: {username}}
+      )
+      if (usernameExist !== null){
+        return {
+          response: 403,
+          status: "FAIL",
+          message: "Username already registered",
+        }
+      }
+
+      const emailExist = await userRepo.findOne(
+        {where: {email}}
+      )
+      if(emailExist !== null){
+        return {
+          response: 403,
+          status: "FAIL",
+          message: "E-mail already registered",
+        }
+      } 
+
       const user = await userRepo.create({
         first_name,
         last_name,
         username,
         user_id,
         role_user,
-        address,
-        phone,
         profile_image,
         email,
         password,
@@ -123,19 +143,38 @@ module.exports = {
       const username = req.body.username
       const user_id = uuidv4()
       const role_user = "member"
-      const address = req.body.address
-      const phone = req.body.phone
       const profile_image = "/image/default_user_icon.png"
       const email = req.body.email
       const password = await encryptPassword(req.body.password)
+      
+      const usernameExist = await userRepo.findOne(
+        {where: {username}}
+      )
+      if (usernameExist !== null){
+        return {
+          response: 403,
+          status: "FAIL",
+          message: "Username already registered",
+        }
+      }
+
+      const emailExist = await userRepo.findOne(
+        {where: {email}}
+      )
+      if(emailExist !== null){
+        return {
+          response: 403,
+          status: "FAIL",
+          message: "E-mail already registered",
+        }
+      } 
+
       const user = await userRepo.create({
         first_name,
         last_name,
         username,
         user_id,
         role_user,
-        address,
-        phone,
         profile_image,
         email,
         password,
@@ -178,38 +217,84 @@ module.exports = {
 
   async update(req) {
     try{
-      console.log("ini role:", req.user)
       const first_name = req.body.first_name
       const last_name = req.body.last_name
       const username = req.body.username
       const role_user = req.body.role_user
-      const address = req.body.address
-      const phone = req.body.phone
       const profile_image = req.body.profile_image
       const email = req.body.email      
 
       if(!!req.body.password){
         const password = await encryptPassword(req.body.password)
+        
+        if(!!username){
+          const usernameExist = await userRepo.findOne(
+            {where: {username}}
+          )
+          if (usernameExist !== null){
+            return {
+              response: 403,
+              status: "FAIL",
+              message: "Username already registered",
+            }
+          }
+        }
+
+        if (!!email){
+          const emailExist = await userRepo.findOne(
+            {where: {email}}
+          )
+          if (emailExist !== null){
+            return {
+              response: 403,
+              status: "FAIL",
+              message: "E-mail already registered",
+            }
+          }
+        }
+        
         const user = await userRepo.update(req.user.id, {
           first_name,
           last_name,
           username,
           role_user,
-          address,
-          phone,
           profile_image,
           email,
           password,
         })
         return {user}
       }else{
+        if(!!username){
+          const usernameExist = await userRepo.findOne(
+            {where: {username}}
+          )
+          if (usernameExist !== null){
+            return {
+              response: 403,
+              status: "FAIL",
+              message: "Username already registered",
+            }
+          }
+        } 
+        
+        if (!!email){
+          const emailExist = await userRepo.findOne(
+            {where: {email}}
+          )
+          if (emailExist !== null){
+            return {
+              response: 403,
+              status: "FAIL",
+              message: "E-mail already registered",
+            }
+          }
+        }
+
         const user = await userRepo.update(req.user.id, {
           first_name,
           last_name,
           username,
           role_user,
-          address,
-          phone,
           profile_image,
           email,
         })
@@ -291,4 +376,22 @@ module.exports = {
       }
     }
   },
+
+  async approved(req) {
+    try{
+      const approved = req.body.approved 
+
+      const champion = await championRepo.update(req.params.id, {
+        approved,
+      })
+      return {champion}
+    }catch (err){
+      return {
+        response: 400,
+        status: "FAIL", 
+        message: "Approved champion failed",
+        error: err.message
+      }
+    }
+},
 }

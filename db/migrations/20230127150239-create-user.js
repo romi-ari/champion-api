@@ -24,12 +24,6 @@ module.exports = {
       role_user: {
         type: Sequelize.STRING
       },
-      address: {
-        type: Sequelize.STRING
-      },
-      phone: {
-        type: Sequelize.STRING
-      },
       profile_image: {
         type: Sequelize.STRING
       },
