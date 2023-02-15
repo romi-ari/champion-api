@@ -87,7 +87,6 @@ module.exports = {
       const first_name = req.body.first_name
       const last_name = req.body.last_name
       const username = req.body.username
-      const user_id = uuidv4()
       const role_user = "admin"
       const profile_image = "/image/default_user_icon.png"
       const email = req.body.email
@@ -119,7 +118,6 @@ module.exports = {
         first_name,
         last_name,
         username,
-        user_id,
         role_user,
         profile_image,
         email,
@@ -141,7 +139,6 @@ module.exports = {
       const first_name = req.body.first_name
       const last_name = req.body.last_name
       const username = req.body.username
-      const user_id = uuidv4()
       const role_user = "member"
       const profile_image = "/image/default_user_icon.png"
       const email = req.body.email
@@ -173,7 +170,6 @@ module.exports = {
         first_name,
         last_name,
         username,
-        user_id,
         role_user,
         profile_image,
         email,

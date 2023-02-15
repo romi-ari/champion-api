@@ -16,7 +16,8 @@ module.exports = {
         type: Sequelize.STRING
       },
       description: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        limit: 1500,
       },
       role: {
         type: Sequelize.STRING

@@ -62,7 +62,16 @@ apiRouter.delete("/api/v1/delete/:id",
 apiRouter.post("/api/v1/register-member", 
     controllers.api.v1.userCtrl.registerMember
 )
-
+apiRouter.post("/send-verify-email",
+    mid.userToken.authorize, 
+    mid.userToken.authorizeMember,
+    controllers.api.v1.userVerificationCtrl.sendVerificationEmail
+)
+apiRouter.post("/verify-email/:verification_token",
+    mid.userToken.authorize, 
+    mid.userToken.authorizeMember,
+    controllers.api.v1.userVerificationCtrl.verifyEmail
+)
 //============ Champion endpoint ============//
 
 apiRouter.get("/api/v1/champion",

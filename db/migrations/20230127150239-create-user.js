@@ -18,14 +18,21 @@ module.exports = {
       username: {
         type: Sequelize.STRING
       },
-      user_id: {
-        type: Sequelize.STRING
-      },
       role_user: {
         type: Sequelize.STRING
       },
       profile_image: {
         type: Sequelize.STRING
+      },
+      verified: {
+        type: Sequelize.BOOLEAN
+      },
+      verification_token: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+      },
+      verification_expires: {
+        type: Sequelize.DATE,
       },
       email: {
         type: Sequelize.STRING

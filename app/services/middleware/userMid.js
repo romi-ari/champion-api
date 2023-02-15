@@ -43,7 +43,9 @@ function authorizeUser(req, res, next) {
 function authorizeSuperAndAdmin(req, res, next) {
   authorize(req, res, next, ["admin","superadmin"]);
 };
-
+function authorizeMember(req, res, next) {
+  authorize(req, res, next, ["member"]);
+};
 function authorizeAdmin(req, res, next) {
   authorize(req, res, next, ["admin"]);
 };
@@ -52,4 +54,4 @@ function authorizeSuperAdmin(req, res, next) {
   authorize(req, res, next, ["superadmin"]);
 };
 
-module.exports = {authorize, authorizeUser, authorizeSuperAndAdmin, authorizeAdmin, authorizeSuperAdmin}
+module.exports = {authorize, authorizeUser, authorizeSuperAndAdmin, authorizeMember, authorizeAdmin, authorizeSuperAdmin}
