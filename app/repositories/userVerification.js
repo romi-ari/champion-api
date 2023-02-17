@@ -4,30 +4,33 @@
 
 
 const {user} = require("../models")
+const jwt = require('jsonwebtoken');
+const dotenv = require("dotenv");
+dotenv.config();
 
 module.exports = {
 
-    findByEmail(email){
+    findByEmail(email) {
         return user.findOne(
             {where: {email} }
         )
     },
 
-    findByVerificationToken(verification_token){
-        console.log("Masuk repo 1")
-        return user.findOne(
-            {where: {verification_token} }
-        )
+    createToken(payload) {
+        return jwt.sign(payload, process.env.JWT_SIGNATURE_KEY, {expiresIn: "30min"});
     },
-
-    // update(user){
-    //     return user.save()
-    // },
     
     update(id, updateArgs) {
         return user.update(updateArgs, {
             where: {
                 id,
+            }
+        })
+    },
+    updateByEmail(email, updateArgs) {
+        return user.update(updateArgs, {
+            where: {
+                email,
             }
         })
     },

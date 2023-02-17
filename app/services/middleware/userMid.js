@@ -8,7 +8,7 @@ async function authorize(req, res, next, authorizedRoles){
     const bearerToken = req.headers.authorization;
     const token = bearerToken.split("Bearer ")[1];
     const tokenPayload = jwt.verify(token, process.env.JWT_SIGNATURE_KEY || "Rahasia")
-    
+
     const user = await userRepo.findByPk(tokenPayload.id);
     req.user = user;
     //check apakah role terdapat di dalam roles

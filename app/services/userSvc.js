@@ -2,7 +2,6 @@
 * @file contains service user 
 */
 
-const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userRepo = require("../repositories/userRepo")
@@ -359,6 +358,7 @@ module.exports = {
         id: user.id,
         username: user.username,
         role_user: user.role_user,
+        verified: user.verified,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       });
@@ -389,5 +389,5 @@ module.exports = {
         error: err.message
       }
     }
-},
+  },
 }

@@ -12,6 +12,15 @@ const {mid}  = require("../app/services")
 apiRouter.use(cors());
 apiRouter.use(express.static(path.join(__dirname, '../bin/public')));
 
+//============ Everyone can access this endpoint ============//
+
+apiRouter.post("/forgot-password",
+    controllers.api.v1.userVerificationCtrl.sendForgotPassword
+)
+apiRouter.post("/verify-password",
+    controllers.api.v1.userVerificationCtrl.verifyPassword
+)
+
 //============ Member, Admin, and Superadmin can access this endpoint ============//
 
 apiRouter.post("/api/v1/login", 
@@ -27,7 +36,6 @@ apiRouter.post("/api/v1/champion",
     mid.userToken.authorizeUser,
     controllers.api.v1.championCtrl.registerChampion
 )
-
 
 //============ Super Admin and Admin  endpoint ============//
 
