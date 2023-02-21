@@ -3,6 +3,7 @@
 */
 
 const championRepo = require("../repositories/championRepo")
+const Joi = require('joi');
 
 module.exports = {
   
@@ -34,18 +35,88 @@ module.exports = {
 
   async registerChampion(req){
     try{
-      const name = req.body.name
-      const title = req.body.title
-      const description = req.body.description
-      const role = req.body.role
-      const difficulty = req.body.difficulty
+
+      if(req.user.approved == false){
+        return{
+          response: 401,
+          status: "FAIL",
+          message: "User is not verified",
+        }
+      }
+
+      const nameScheme = Joi.string().min(3).regex(/^[a-zA-Z]+$/).required()
+      const champion_name = req.body.name
+
+      const titleScheme = Joi.string().max(40).regex(/^[A-Za-z\s!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]+$/).required()
+      const champion_title = req.body.title
+
+      const descriptionScheme = Joi.string().max(1500).regex(/^[A-Za-z\s!"#$%&'()*+,-.—/:;<=>?@[\\\]^_`{|}~]+$/).required()
+      const champion_description = req.body.description
+
+      const roleSchema = Joi.string().valid("fighter", "assassin", "mage", "support", "tanker", "marksman").required()
+      const champion_role = req.body.role.toLowerCase();
+
+      const difficultySchema = Joi.string().valid("1", "2", "3", "4", "5").length(1).required()
+      const champion_difficulty = req.body.difficulty
+
+      const name = champion_name
+      const title = champion_title
+      const description = champion_description 
+      const role = champion_role
+      const difficulty = champion_difficulty
       const profile_image = "/image/default_user_icon.png"
       const approved = "false"
       const createdBy = req.user.username
 
+      const nameErr = nameScheme.validate(name)
+      if (nameErr.error) {
+        return {
+          response: 422,
+          status: "FAIL",
+          message: "Minimum name length is 3 characters and does not contain numbers",
+        }
+      }
+
+      const titleErr = titleScheme.validate(title)
+      if (titleErr.error) {
+        return {
+          response: 422,
+          status: "FAIL",
+          message: "Maximum length is 40 characters and does not contain numbers",
+        }
+      }
+
+      const descriptionErr = descriptionScheme.validate(description)
+      if (descriptionErr.error) {
+        return {
+          response: 422,
+          status: "FAIL",
+          message: "Maximum length is 1500 characters",
+        }
+      }
+
+      const roleErr = roleSchema.validate(role)
+      if (roleErr.error) {
+        return {
+          response: 422,
+          status: "FAIL",
+          message: "Only accept roles: fighter, assassin, mage, support, tanker, marksman",
+        }
+      }
+
+      const difficultyErr = difficultySchema.validate(difficulty)
+      if (difficultyErr.error) {
+        return {
+          response: 422,
+          status: "FAIL",
+          message: "Only accept number: 1, 2, 3, 4, 5",
+        }
+      }
+      
       const nameExist = await championRepo.findOne(
         {where: {name}}
       )
+      
       if(nameExist !== null){
         return {
           response: 403,

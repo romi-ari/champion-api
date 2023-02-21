@@ -17,7 +17,7 @@ apiRouter.use(express.static(path.join(__dirname, '../bin/public')));
 apiRouter.post("/forgot-password",
     controllers.api.v1.userVerificationCtrl.sendForgotPassword
 )
-apiRouter.post("/verify-password",
+apiRouter.post("/forgot-password/:forgot_password_token",
     controllers.api.v1.userVerificationCtrl.verifyPassword
 )
 
@@ -75,9 +75,7 @@ apiRouter.post("/send-verify-email",
     mid.userToken.authorizeMember,
     controllers.api.v1.userVerificationCtrl.sendVerificationEmail
 )
-apiRouter.post("/verify-email/:verification_token",
-    mid.userToken.authorize, 
-    mid.userToken.authorizeMember,
+apiRouter.get("/verify-email/:verify_email_token",
     controllers.api.v1.userVerificationCtrl.verifyEmail
 )
 //============ Champion endpoint ============//

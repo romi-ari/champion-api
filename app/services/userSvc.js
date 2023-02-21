@@ -198,7 +198,7 @@ module.exports = {
         }
       }
       return {
-          data: user,
+          user,
       }
     }catch (err){
       return {

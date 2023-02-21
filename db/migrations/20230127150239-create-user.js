@@ -27,13 +27,6 @@ module.exports = {
       verified: {
         type: Sequelize.BOOLEAN
       },
-      verification_token: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
-      },
-      verification_expires: {
-        type: Sequelize.DATE,
-      },
       email: {
         type: Sequelize.STRING
       },
