@@ -26,11 +26,24 @@ apiRouter.post("/forgot-password/:forgot_password_token",
 apiRouter.post("/api/v1/login", 
     controllers.api.v1.userCtrl.login
 )
-apiRouter.put("/api/v1/update",
+apiRouter.put("/settings/account",
     mid.userToken.authorize,
     mid.userToken.authorizeUser,
-    controllers.api.v1.userCtrl.update
+    controllers.api.v1.userCtrl.updateUserProfile
 )
+
+apiRouter.put("/settings/email",
+    mid.userToken.authorize,
+    mid.userToken.authorizeUser,
+    controllers.api.v1.userCtrl.changeEmail
+)
+
+apiRouter.put("/settings/security",
+    mid.userToken.authorize,
+    mid.userToken.authorizeUser,
+    controllers.api.v1.userCtrl.changePassword
+)
+
 apiRouter.post("/api/v1/champion",
     mid.userToken.authorize,
     mid.userToken.authorizeUser,
