@@ -6,7 +6,9 @@ const express = require("express")
 const apiRouter = express.Router()
 const path = require('path');
 const cors = require('cors');
+const multer = require("multer")
 const controllers = require("../app/controllers")
+const services = require("../app/services")
 const {mid}  = require("../app/services")
 
 apiRouter.use(cors());
@@ -115,6 +117,14 @@ apiRouter.delete("/api/v1/champion/:id",
     mid.userToken.authorize,
     mid.userToken.authorizeUser, 
     controllers.api.v1.championCtrl.destroy
+)
+
+//============ Test ============//
+
+const upload = multer({ storage: multer.memoryStorage() })
+
+apiRouter.post("/upload", upload.single("file"),
+    services.uploadFile.imageUpload
 )
 
 //============ Middleware ============//

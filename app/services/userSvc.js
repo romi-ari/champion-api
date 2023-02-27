@@ -365,6 +365,7 @@ module.exports = {
       const first_name = req_fs
       const last_name = req_ls
       const username = req_username
+      const profile_image = req.body.image
 
       //Check whether the requirements for filling in the data have been met
       const fnErr = fnScheme.validate(first_name)
@@ -410,7 +411,10 @@ module.exports = {
         }
 
         const user = await userRepo.update(req.user.id, {
+          first_name,
+          last_name,
           username,
+          profile_image,
         })
 
         return {user}
