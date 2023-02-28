@@ -1,9 +1,18 @@
 /**
 * @file contains service champion 
 */
-
+const { ref, getDownloadURL, uploadBytesResumable, deleteObject} = require("firebase/storage");
+const { storage, firebaseConfig } = require("../../config/firebase-config");
 const championRepo = require("../repositories/championRepo")
 const Joi = require('joi');
+
+const giveCurrentDateTime = () => {
+  const today = new Date()
+  const date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate()
+  const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
+  const dateTime = date +"-"+ time
+  return dateTime
+};
 
 module.exports = {
   
@@ -171,7 +180,7 @@ module.exports = {
     }
   },
 
-  async update(req) {
+  async updateChampion(req) {
     try{
 
       const nameScheme = Joi.string().min(2).regex(/^[a-zA-Z]+$/).required()
@@ -239,7 +248,7 @@ module.exports = {
       const description = champion_description 
       const role = champion_role
       const difficulty = champion_difficulty
-      const profile_image = req.body.profile_image
+      // const profile_image = req.body.profile_image
       
       const nameExist = await championRepo.findOne(
         {where: {name}}
@@ -258,9 +267,10 @@ module.exports = {
         description,
         role,
         difficulty,
-        profile_image,
       })
+
       return {champion}
+
     } catch (err){
       return {
         response: 400,
@@ -269,6 +279,83 @@ module.exports = {
         error: err.message,
       }
     } 
+  },
+
+  async updateChampionProfilePicture(req) {
+    try {
+      const id = req.params.id
+      const champion = await championRepo.findByPk(id)
+      const championJSON = JSON.stringify(champion)
+      const championParse = JSON.parse(championJSON)
+
+      if(!champion){
+        return{
+          response: 404,
+          status: "FAIL", 
+          message: `Can't find champion by id ${id}`,
+        }
+      }
+
+      // Delete old image from firebase storage
+      const imageUrl = championParse.profile_image
+      if(imageUrl == "/image/default_user_icon.png"){
+        const dateTime = giveCurrentDateTime();
+        const storageRef = ref(storage, `champion_profiles/${dateTime + "_" + req.file.originalname}`)
+
+        // Create file metadata including the content type 
+        const metadata = {
+            contentType: req.file.mimetype,
+        };
+
+        // Upload the file in the bucket storage
+        const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata)
+
+        //Grab the public url
+        const url = await getDownloadURL(snapshot.ref)
+
+        const profile_image = url
+        const user = await championRepo.update(req.params.id, {
+          profile_image,
+        })
+      
+        return {user}
+      }
+      const fileName = decodeURIComponent(imageUrl.substring(imageUrl.lastIndexOf('/') + 1, imageUrl.indexOf('?')));
+      console.log("tes", fileName)
+      const desertRef = ref(storage, `${fileName}`);
+      deleteObject(desertRef)
+
+      const dateTime = giveCurrentDateTime();
+        const storageRef = ref(storage, `champion_profiles/${dateTime + "_" + req.file.originalname}`)
+        
+        // Create file metadata including the content type 
+        const metadata = {
+            contentType: req.file.mimetype,
+        };
+      
+        // Upload the file in the bucket storage
+        const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata)
+      
+        //Grab the public url
+        const url = await getDownloadURL(snapshot.ref)
+      
+        const profile_image = url
+        const user = await championRepo.update(req.params.id, {
+          profile_image,
+        })
+      
+        return {user}
+
+    } catch (err) {
+
+      return {
+        response: 400,
+        status: "FAIL",
+        message: "Update champion picture failed",
+        error: err.message,
+      }
+
+    }
   },
 
   async destroy(req) {

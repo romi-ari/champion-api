@@ -1,5 +1,5 @@
-// const { initializeApp } = require("firebase/app")
-// const { getStorage } = require("firebase/storage")
+const { initializeApp } = require("firebase/app")
+const { getStorage } = require("firebase/storage")
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -13,8 +13,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-// const app = initializeApp(firebaseConfig);
-
+const app = initializeApp(firebaseConfig)
 // Initialize Cloud Storage and get a reference to the service
+const storage = getStorage(app)
 
-module.exports = {firebaseConfig}
+module.exports = {
+  storage
+}

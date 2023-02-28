@@ -1,6 +1,11 @@
 /**
 * @file contains service user 
 */
+const { ref, getDownloadURL, uploadBytesResumable, deleteObject} = require("firebase/storage");
+const {storage} = require("../../config/firebase-config");
+
+// initializeApp(config.firebaseConfig)
+// const storage = getStorage()
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -9,6 +14,14 @@ const userRepo = require("../repositories/userRepo")
 const championRepo = require("../repositories/championRepo")
 const dotenv = require("dotenv");
 dotenv.config();
+
+const giveCurrentDateTime = () => {
+  const today = new Date()
+  const date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate()
+  const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
+  const dateTime = date +"-"+ time
+  return dateTime
+};
 
 const encryptPassword = (password) => {
     try {
@@ -365,7 +378,6 @@ module.exports = {
       const first_name = req_fs
       const last_name = req_ls
       const username = req_username
-      const profile_image = req.body.image
 
       //Check whether the requirements for filling in the data have been met
       const fnErr = fnScheme.validate(first_name)
@@ -414,7 +426,6 @@ module.exports = {
           first_name,
           last_name,
           username,
-          profile_image,
         })
 
         return {user}
@@ -429,6 +440,45 @@ module.exports = {
         error: err.message,
       }
     } 
+  },
+
+  async updateProfilePicture(req) {
+    try {
+      // Delete old image from firebase storage
+      const imageUrl = req.user.profile_image
+      const fileName = decodeURIComponent(imageUrl.substring(imageUrl.lastIndexOf('/') + 1, imageUrl.indexOf('?')));
+      const desertRef = ref(storage, `${fileName}`);
+      deleteObject(desertRef)
+
+      const dateTime = giveCurrentDateTime();
+      const storageRef = ref(storage, `user-profiles/${dateTime + "_" + req.file.originalname}`)
+
+      // Create file metadata including the content type 
+      const metadata = {
+          contentType: req.file.mimetype,
+      };
+
+      // Upload the file in the bucket storage
+      const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata)
+
+      //Grab the public url
+      const url = await getDownloadURL(snapshot.ref)
+
+      const profile_image = url
+      const user = await userRepo.update(req.user.id, {
+        profile_image,
+      })
+    
+      return {user}
+
+    } catch (err) {
+      return {
+        response: 400,
+        status: "FAIL",
+        message: "Update profile picture failed",
+        error: err.message,
+      }
+    }
   },
 
   async changeEmail(req) {

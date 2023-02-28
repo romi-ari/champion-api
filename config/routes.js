@@ -10,6 +10,7 @@ const multer = require("multer")
 const controllers = require("../app/controllers")
 const services = require("../app/services")
 const {mid}  = require("../app/services")
+const upload = multer({ storage: multer.memoryStorage() })
 
 apiRouter.use(cors());
 apiRouter.use(express.static(path.join(__dirname, '../bin/public')));
@@ -19,6 +20,7 @@ apiRouter.use(express.static(path.join(__dirname, '../bin/public')));
 apiRouter.post("/forgot-password",
     controllers.api.v1.userVerificationCtrl.sendForgotPassword
 )
+
 apiRouter.post("/forgot-password/:forgot_password_token",
     controllers.api.v1.userVerificationCtrl.verifyPassword
 )
@@ -28,10 +30,17 @@ apiRouter.post("/forgot-password/:forgot_password_token",
 apiRouter.post("/api/v1/login", 
     controllers.api.v1.userCtrl.login
 )
+
 apiRouter.put("/settings/account",
     mid.userToken.authorize,
     mid.userToken.authorizeUser,
     controllers.api.v1.userCtrl.updateUserProfile
+)
+
+apiRouter.put("/profile-picture/upload", upload.single("file"),
+    mid.userToken.authorize,
+    mid.userToken.authorizeUser,
+    controllers.api.v1.userCtrl.updateProfilePicture
 )
 
 apiRouter.put("/settings/email",
@@ -59,21 +68,25 @@ apiRouter.get("/api/v1/admin",
     mid.userToken.authorizeSuperAndAdmin,
     controllers.api.v1.userCtrl.list
 )
+
 apiRouter.post("/api/v1/register-admin", 
     mid.userToken.authorize,
     mid.userToken.authorizeSuperAdmin, 
     controllers.api.v1.userCtrl.registerAdmin
 )
+
 apiRouter.put("/api/v1/champion/approved/:id",
     mid.userToken.authorize,
     mid.userToken.authorizeSuperAndAdmin,
     controllers.api.v1.userCtrl.approved
 )
+
 apiRouter.get("/api/v1/admin/:id", 
     mid.userToken.authorize,
     mid.userToken.authorizeAdmin, 
     controllers.api.v1.userCtrl.listById
 )
+
 apiRouter.delete("/api/v1/delete/:id", 
     mid.userToken.authorize,
     mid.userToken.authorizeSuperAdmin, 
@@ -85,11 +98,13 @@ apiRouter.delete("/api/v1/delete/:id",
 apiRouter.post("/api/v1/register-member", 
     controllers.api.v1.userCtrl.registerMember
 )
+
 apiRouter.post("/send-verify-email",
     mid.userToken.authorize, 
     mid.userToken.authorizeMember,
     controllers.api.v1.userVerificationCtrl.sendVerificationEmail
 )
+
 apiRouter.get("/verify-email/:verify_email_token",
     controllers.api.v1.userVerificationCtrl.verifyEmail
 )
@@ -108,11 +123,19 @@ apiRouter.get("/api/v1/champion/:id",
     mid.userToken.authorizeUser, 
     controllers.api.v1.championCtrl.listById
 )
+
 apiRouter.put("/api/v1/champion/:id",
     mid.userToken.authorize,
     mid.userToken.authorizeUser,
-    controllers.api.v1.championCtrl.update
+    controllers.api.v1.championCtrl.updateChampion
 )
+
+apiRouter.put("/champion-profile/upload/:id", upload.single("file"),
+    mid.userToken.authorize,
+    mid.userToken.authorizeUser,
+    controllers.api.v1.championCtrl.updateChampionProfilePicture
+)
+
 apiRouter.delete("/api/v1/champion/:id",
     mid.userToken.authorize,
     mid.userToken.authorizeUser, 
@@ -121,11 +144,6 @@ apiRouter.delete("/api/v1/champion/:id",
 
 //============ Test ============//
 
-const upload = multer({ storage: multer.memoryStorage() })
-
-apiRouter.post("/upload", upload.single("file"),
-    services.uploadFile.imageUpload
-)
 
 //============ Middleware ============//
 
