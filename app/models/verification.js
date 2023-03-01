@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   verification.init({
+    email: DataTypes.STRING,
     verify_email_token: DataTypes.STRING,
     forgot_password_token: DataTypes.STRING,
   }, {

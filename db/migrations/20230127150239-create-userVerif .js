@@ -9,6 +9,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      email: {
+        type: Sequelize.STRING,
+      },
       verify_email_token: {
         type: Sequelize.STRING,
         limit: 500

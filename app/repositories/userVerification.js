@@ -6,6 +6,7 @@
 const {user, verification} = require("../models")
 const jwt = require('jsonwebtoken');
 const dotenv = require("dotenv");
+const { userVerification } = require("../services");
 dotenv.config();
 
 module.exports = {
@@ -33,7 +34,7 @@ module.exports = {
     },
 
     createTokenSendVerifyEmail(payload) {
-        return jwt.sign(payload, process.env.JWT_SIGNATURE_KEY);
+        return jwt.sign(payload, process.env.JWT_SIGNATURE_KEY, {expiresIn: "1min"});
     },
     
     createTokenForgotPassword(payload) {
@@ -53,5 +54,9 @@ module.exports = {
                 email,
             }
         })
+    },
+
+    delete(email) {
+        return verification.destroy(email)
     },
 }

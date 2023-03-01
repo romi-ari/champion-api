@@ -2,12 +2,13 @@
  * @file contains service champion
  */
 
-const { v4: uuidv4 } = require("uuid");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const userVerification = require("../repositories/userVerification");
 const dotenv = require("dotenv");
+const url = require("url");
+const Joi = require('joi');
 dotenv.config();
 
 const encryptPassword = (password) => {
@@ -43,20 +44,19 @@ const transporter = nodemailer.createTransport({
 
 async function sendVerificationEmail(req) {
   try {
-    const tokenUUID = uuidv4()
-    const expiresOn = new Date(Date.now() + 1800000);
     const id = req.user.id
+    const email = req.user.email
     
     const token = userVerification.createTokenSendVerifyEmail({
       id,
-      tokenUUID, 
-      expiresOn, 
+      email, 
     })
 
     const verify_email_token = token
-    const verification = await userVerification.create({verify_email_token})
-
-    const email = req.user.email
+    const verification = await userVerification.create({
+      email,
+      verify_email_token,
+    })
 
     const mailOption = {
       from: "Champion API" + process.env.email,
@@ -86,33 +86,48 @@ async function sendVerificationEmail(req) {
 async function verifyEmail(req) {
   try {
 
-    const bearerToken = req.headers.authorization
-    const token = bearerToken.split("Bearer ")[1]
-    const tokenPayload = jwt.verify(token, process.env.JWT_SIGNATURE_KEY)
+    // const bearerToken = req.headers.authorization
+    // const token = bearerToken.split("Bearer ")[1]
+    // const tokenPayload = jwt.verify(token, process.env.JWT_SIGNATURE_KEY)
+    
+    const urlVerify = req.params.verify_email_token
+    const parsedUrl = url.parse(urlVerify, true)
+    const pathName = parsedUrl.pathname
 
-    const verify_email_token = req.params.verify_email_token
-    const isFound = await userVerification.findEmailToken(verify_email_token)
+    const pathSegments = pathName.split("/")
+    const getToken = pathSegments[pathSegments.length - 1]
 
-    if (!isFound) {
+    const allocateToken = getToken
+    const isFound = await userVerification.findEmailToken(allocateToken)
+    if (isFound == null || undefined || "") {
       return {
         response: 400,
         status: "FAIL",
-        message: "Token do not match or invalid",
+        message: "Token do not match or invalid, try to generating token again.",
       };
     }
 
-    const expired = tokenPayload.expiresOn;
+    try {
 
-    if (expired <= new Date()) {
+      jwt.verify(allocateToken, process.env.JWT_SIGNATURE_KEY)
+
+    } catch (err) {
+
       return {
         response: 410,
         status: "FAIL",
-        message: "Verification token is invalid or has expired.",
+        message: "Verification token is invalid or has expired, try generating token again.",
+        error: err.message
       };
+
     }
 
+    const tokenPayload = jwt.verify(allocateToken, process.env.JWT_SIGNATURE_KEY)
+    const email = tokenPayload.email
     const verified = true
+
     const isVerified = await userVerification.update(tokenPayload.id, {verified});
+    await userVerification.delete({where: {email}})
 
     return { isVerified }
 
@@ -153,7 +168,10 @@ async function sendForgotPassword(req) {
     });
 
     const forgot_password_token = token
-    const verification = await userVerification.create({forgot_password_token})
+    const verification = await userVerification.create({
+      email,
+      forgot_password_token,
+    })
 
     const mailOption = {
       from: "Champion API" + process.env.email,
@@ -182,9 +200,16 @@ async function sendForgotPassword(req) {
 
 async function verifyPassword(req) {
   try {
-    const bearerToken = req.headers.authorization
-    const token = bearerToken.split("Bearer ")[1]
-    const tokenPayload = jwt.verify(token, process.env.JWT_SIGNATURE_KEY)
+    // const bearerToken = req.headers.authorization
+    // const token = bearerToken.split("Bearer ")[1]
+    const urlVerify = req.params.forgot_password_token
+    const parsedUrl = url.parse(urlVerify, true)
+    const pathName = parsedUrl.pathname
+
+    const pathSegments = pathName.split("/")
+    const getToken = pathSegments[pathSegments.length - 1]
+
+    const tokenPayload = jwt.verify(getToken, process.env.JWT_SIGNATURE_KEY)
     
     const forgot_password_token = req.params.forgot_password_token
     const isFound = await userVerification.findPasswordToken(forgot_password_token)
@@ -193,12 +218,22 @@ async function verifyPassword(req) {
       return {
         response: 400,
         status: "FAIL",
-        message: "Token do not match or not found ",
+        message: "Forgot password token is invalid or has expired, try generating token again. ",
       };
     }
 
+    const passwordSchema = Joi.string().regex(/^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/).required()
     const newPassword = req.body.newPassword
     const confirmPassword = req.body.confirmPassword
+
+    const passwordErr = passwordSchema.validate(newPassword)
+    if (passwordErr.error) {
+      return {
+        response: 422,
+        status: "FAIL",
+        message: "Password minimum 8 character long with at least one capital letter and one symbol ",
+      }
+    }
 
     if (newPassword == null || undefined || "") {
       return {
@@ -221,10 +256,9 @@ async function verifyPassword(req) {
     }  
 
     const password = await encryptPassword(newPassword)
-
-    const verify = await userVerification.updateByEmail(tokenPayload.email, {
-      password,
-    });
+    const email = tokenPayload.email
+    const verify = await userVerification.updateByEmail(email, {password});
+    await userVerification.delete({where: {email}})
 
     return { verify }
 

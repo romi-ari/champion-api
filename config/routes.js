@@ -8,7 +8,6 @@ const path = require('path');
 const cors = require('cors');
 const multer = require("multer")
 const controllers = require("../app/controllers")
-const services = require("../app/services")
 const {mid}  = require("../app/services")
 const upload = multer({ storage: multer.memoryStorage() })
 

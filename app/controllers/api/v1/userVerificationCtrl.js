@@ -36,7 +36,6 @@ module.exports = {
                 res.status(200).json({
                     status: "OK",
                     message: "Verify email success",
-                    data,
                 })
             }
         }).catch(err => {
