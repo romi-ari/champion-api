@@ -97,8 +97,7 @@ async function verifyEmail(req) {
     const pathSegments = pathName.split("/")
     const getToken = pathSegments[pathSegments.length - 1]
 
-    const allocateToken = getToken
-    const isFound = await userVerification.findEmailToken(allocateToken)
+    const isFound = await userVerification.findEmailToken(getToken)
     if (isFound == null || undefined || "") {
       return {
         response: 400,
@@ -109,7 +108,7 @@ async function verifyEmail(req) {
 
     try {
 
-      jwt.verify(allocateToken, process.env.JWT_SIGNATURE_KEY)
+      jwt.verify(getToken, process.env.JWT_SIGNATURE_KEY)
 
     } catch (err) {
 
@@ -122,7 +121,7 @@ async function verifyEmail(req) {
 
     }
 
-    const tokenPayload = jwt.verify(allocateToken, process.env.JWT_SIGNATURE_KEY)
+    const tokenPayload = jwt.verify(getToken, process.env.JWT_SIGNATURE_KEY)
     const email = tokenPayload.email
     const verified = true
 
@@ -209,7 +208,20 @@ async function verifyPassword(req) {
     const pathSegments = pathName.split("/")
     const getToken = pathSegments[pathSegments.length - 1]
 
-    const tokenPayload = jwt.verify(getToken, process.env.JWT_SIGNATURE_KEY)
+    try {
+
+      jwt.verify(getToken, process.env.JWT_SIGNATURE_KEY)
+
+    } catch (err) {
+
+      return {
+        response: 410,
+        status: "FAIL",
+        message: "Verification token is invalid or has expired, try generating token again.",
+        error: err.message
+      };
+
+    }
     
     const forgot_password_token = req.params.forgot_password_token
     const isFound = await userVerification.findPasswordToken(forgot_password_token)
@@ -255,8 +267,9 @@ async function verifyPassword(req) {
       };
     }  
 
-    const password = await encryptPassword(newPassword)
+    const tokenPayload = jwt.verify(getToken, process.env.JWT_SIGNATURE_KEY)
     const email = tokenPayload.email
+    const password = await encryptPassword(newPassword)
     const verify = await userVerification.updateByEmail(email, {password});
     await userVerification.delete({where: {email}})
 
