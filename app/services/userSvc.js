@@ -108,7 +108,7 @@ module.exports = {
       const usernameScheme = Joi.string().min(3).regex(/^[a-zA-Z0-9_-]+$/).required()
       const req_username = req.body.username
 
-      const emailSchema = Joi.string().email().regex(/@gmail\.com$/).required()
+      const emailSchema = Joi.string().email().required()
       const req_email = req.body.email
 
       const passwordSchema = Joi.string().regex(/^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/).required()
@@ -153,7 +153,7 @@ module.exports = {
         return {
           response: 422,
           status: "FAIL",
-          message: "Email must use @gmail.com",
+          message: "Invalid email address",
         }
       }
 
@@ -229,7 +229,7 @@ module.exports = {
       const usernameScheme = Joi.string().min(3).regex(/^[a-zA-Z0-9_-]+$/).required()
       const req_username = req.body.username
 
-      const emailSchema = Joi.string().email().regex(/@gmail\.com$/).required()
+      const emailSchema = Joi.string().email().required()
       const req_email = req.body.email
 
       const passwordSchema = Joi.string().regex(/^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/).required()
@@ -274,7 +274,7 @@ module.exports = {
         return {
           response: 422,
           status: "FAIL",
-          message: "Email must use @gmail.com",
+          message: "Invalid email address",
         }
       }
 
