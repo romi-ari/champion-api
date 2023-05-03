@@ -1,0 +1,51 @@
+version: '1'
+
+volumes:
+  node-app:
+
+networks:
+  node-network:
+
+services:
+  postgres-dbs:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_DB: champion-api
+      POSTGRES_PASSWORD: root
+    volumes:
+      - node-app:/var/lib/postgres
+    networks:
+      - node-network
+  
+  champion-api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - postgres-dbs
+    restart: always
+    ports:
+      - 8000:8000
+    environment:
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_HOST: postgres-dbs
+      DB_NAME: champion-api
+    networks:
+      - node-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - postgres-dbs
+    restart: always
+    ports:
+      - 8010:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: romiari777@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - node-network
